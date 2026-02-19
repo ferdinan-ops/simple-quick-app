@@ -3,12 +3,12 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 import { Button, type ButtonProps } from '@/components/atoms/button'
 
-interface DropdownProps {
+type DropdownProps = {
   children: React.ReactNode
   className?: string
 }
 
-interface DropdownContextType {
+type DropdownContextType = {
   open: boolean
   setOpen: (open: boolean) => void
 }
@@ -46,8 +46,8 @@ function Content({ children, className, align = 'center' }: DropdownProps & { al
   return (
     <div
       className={cn(
-        'absolute top-[calc(100%+7px)] flex -translate-y-2 flex-col rounded-md border border-gray3 bg-white opacity-0 transition-all max-h-0 overflow-hidden',
-        context.open && 'translate-y-0 opacity-100 z-50 max-h-32',
+        'absolute top-[calc(100%+7px)] flex max-h-0 -translate-y-2 flex-col overflow-hidden rounded-md border border-gray3 bg-white opacity-0 transition-all',
+        context.open && 'z-50 max-h-32 translate-y-0 opacity-100',
         align === 'center' && 'left-1/2 w-full origin-center -translate-x-1/2',
         align === 'right' && 'right-0 origin-bottom-right',
         className
@@ -60,7 +60,13 @@ function Content({ children, className, align = 'center' }: DropdownProps & { al
 
 function Item({ children, className, onClick }: DropdownProps & { onClick?: () => void }) {
   return (
-    <button onClick={onClick} className={cn('flex items-center px-[15px] py-[12px] text-sm font-semibold text-gray2 hover:bg-neutral-100', className)}>
+    <button
+      onClick={onClick}
+      className={cn(
+        'flex items-center px-[15px] py-[12px] text-sm font-semibold text-gray2 hover:bg-neutral-100',
+        className
+      )}
+    >
       {children}
     </button>
   )

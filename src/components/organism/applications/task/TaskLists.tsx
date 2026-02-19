@@ -13,7 +13,7 @@ export default function TaskLists() {
       <TaskLayout>
         <Loading>
           <p className="text-center font-semibold text-gray2">Loading Task Lists...</p>
-      </Loading>
+        </Loading>
       </TaskLayout>
     )
   }

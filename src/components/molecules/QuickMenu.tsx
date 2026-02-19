@@ -5,7 +5,7 @@ import { QuickPopup } from '@/components/molecules'
 
 import { cn } from '@/lib/utils'
 
-interface Action {
+type Action = {
   activeIcon: React.ReactNode
   inactiveIcon: React.ReactNode
   onClick?: () => void
@@ -14,7 +14,7 @@ interface Action {
   popup?: React.ReactNode
 }
 
-interface QuickMenuProps {
+type QuickMenuProps = {
   actions: Action[]
   mainButton: {
     active: {
@@ -28,7 +28,7 @@ interface QuickMenuProps {
   }
 }
 
-interface ButtonStyleParams {
+type ButtonStyleParams = {
   index: number
   isExpanded: boolean
   activeIndex: number | null

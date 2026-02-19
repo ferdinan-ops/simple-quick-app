@@ -5,7 +5,7 @@ import COLORS from '@/lib/color'
 import { Dropdown } from '../molecules'
 import { ScrollArea } from '../ui/scroll-area'
 
-interface TaskLayoutProps {
+type TaskLayoutProps = {
   children: React.ReactNode
 }
 
@@ -28,7 +28,7 @@ export default function TaskLayout({ children }: TaskLayoutProps) {
         </div>
         <Button>New Task</Button>
       </div>
-      <ScrollArea className="flex-1">{children}</ScrollArea>
+      <ScrollArea className="h-0 flex-1">{children}</ScrollArea>
     </div>
   )
 }

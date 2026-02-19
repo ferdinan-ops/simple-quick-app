@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils'
 import * as React from 'react'
 
-interface MainPopupLayoutProps {
+type MainPopupLayoutProps = {
   children: React.ReactNode
   className?: string
 }

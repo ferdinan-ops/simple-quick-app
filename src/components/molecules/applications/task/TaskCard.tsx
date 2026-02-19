@@ -1,17 +1,35 @@
 import * as React from 'react'
-import { ChevronIcon, MoreIcon, PencilIcon, TimeIcon } from '@/assets/icons'
-import { Button } from '@/components/atoms/button'
+
+import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DatePicker } from '@/components/ui/datepicker'
+
+import { Dropdown } from '@/components/molecules'
+import { Button } from '@/components/atoms/button'
+
 import COLORS from '@/lib/color'
 import { cn } from '@/lib/utils'
-import Dropdown from '../../Dropdown'
-import { Textarea } from '@/components/ui/textarea'
-import type { TaskType } from '@/types/task.type'
 import { formatDate, getDaysLeft, parseDate } from '@/lib/date'
+
+import type { TaskType } from '@/types/task.type'
+
 import { useDeleteTask, useUpdateTask } from '@/store/server/useTask'
 
-interface TaskCardProps {
+import { ChevronIcon, MoreIcon, PencilIcon, TimeIcon } from '@/assets/icons'
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from '@/components/ui/alert-dialog'
+
+type TaskCardProps = {
   className?: string
   taskItem: TaskType
   id: string
@@ -31,13 +49,13 @@ export default function TaskCard({ taskItem, className, id }: TaskCardProps) {
   const { mutate: updateTask } = useUpdateTask()
   const { mutate: deleteTask } = useDeleteTask()
 
-  const handleUpdateTask = () => {
+  const handleUpdateTask = (value: TaskType) => {
     updateTask({
       id,
-      task,
-      descriptions,
-      targetDate: targetDate ? formatDate(targetDate) : '',
-      status
+      task: value.task ?? task,
+      descriptions: value.descriptions ?? descriptions,
+      targetDate: value.targetDate ? value.targetDate : targetDate ? formatDate(targetDate) : '',
+      status: value.status ?? status
     })
   }
 
@@ -51,7 +69,7 @@ export default function TaskCard({ taskItem, className, id }: TaskCardProps) {
             checked={status === 'DONE'}
             onCheckedChange={(checked) => {
               setStatus(checked ? 'DONE' : 'TODO')
-              handleUpdateTask()
+              handleUpdateTask({ status: checked ? 'DONE' : 'TODO' })
             }}
             className="mt-[3px]"
           />
@@ -59,15 +77,17 @@ export default function TaskCard({ taskItem, className, id }: TaskCardProps) {
             variant="hidden"
             value={task}
             onChange={(e) => setTask(e.target.value)}
-            onBlur={() => handleUpdateTask()}
+            onBlur={() => handleUpdateTask({})}
             className={cn('text-sm font-semibold text-gray2', status === 'DONE' && 'text-gray3 line-through')}
           />
         </div>
         <div className="flex items-center">
-          {status !== 'DONE' && taskItem.targetDate && (
-            <p className="w-max text-xs font-medium text-red">{getDaysLeft(taskItem.targetDate)} Days Left</p>
+          {status !== 'DONE' && targetDate && (
+            <p className="w-max text-xs font-medium text-red">{getDaysLeft(formatDate(targetDate))} Days Left</p>
           )}
-          <p className="ml-5 mr-[10px] text-[10px] font-semibold text-gray2">{taskItem.targetDate}</p>
+          {targetDate && (
+            <p className="ml-5 mr-[10px] text-[10px] font-semibold text-gray2">{formatDate(targetDate)}</p>
+          )}
           <Button variant="icon" className="mr-[14px]" onClick={() => setOpen(!open)}>
             <ChevronIcon
               color={COLORS.GRAY2}
@@ -80,7 +100,25 @@ export default function TaskCard({ taskItem, className, id }: TaskCardProps) {
               <MoreIcon color={COLORS.GRAY3} width={14} height={4} />
             </Dropdown.TriggerButton>
             <Dropdown.Content align="right" className="w-[126px]">
-              <Dropdown.Item className="text-red" onClick={() => deleteTask(id)}>Delete</Dropdown.Item>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Dropdown.Item className="text-red">Delete</Dropdown.Item>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete your task from our servers.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="hover:bg-neutral-100">Cancel</AlertDialogCancel>
+                    <AlertDialogAction className="bg-red text-white hover:bg-[#d62c2c]" onClick={() => deleteTask(id)}>
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </Dropdown.Content>
           </Dropdown>
         </div>
@@ -94,7 +132,13 @@ export default function TaskCard({ taskItem, className, id }: TaskCardProps) {
       >
         <div className="flex items-center gap-[18px]">
           <TimeIcon color={COLORS.PRIMARY} size={20} />
-          <DatePicker value={targetDate} onChange={(date) => setTargetDate(date)} />
+          <DatePicker
+            value={targetDate}
+            onChange={(date) => {
+              setTargetDate(date)
+              handleUpdateTask({ targetDate: formatDate(date) })
+            }}
+          />
         </div>
         <div className="flex items-start gap-[18px]">
           <Button variant="icon" onClick={() => setIsDescriptionEdit(!isDescriptionEdit)}>
@@ -104,7 +148,7 @@ export default function TaskCard({ taskItem, className, id }: TaskCardProps) {
             variant="hidden"
             value={descriptions ?? 'No Description'}
             onChange={(e) => setDescriptions(e.target.value)}
-            onBlur={() => handleUpdateTask()}
+            onBlur={() => handleUpdateTask({})}
             className={cn('max-w-[80%] text-sm font-medium text-gray2', status === 'DONE' && 'text-gray3 line-through')}
           />
         </div>

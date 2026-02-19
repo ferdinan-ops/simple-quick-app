@@ -2,9 +2,9 @@ import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export type ButtonProps = {
   variant?: 'outline' | 'default' | 'icon'
-}
+} & React.ButtonHTMLAttributes<HTMLButtonElement>
 
 export default function Button({ variant = 'default', className, ...props }: ButtonProps) {
   return (

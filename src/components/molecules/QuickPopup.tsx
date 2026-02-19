@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils'
 import * as React from 'react'
 
-interface QuickPopupProps {
+type QuickPopupProps = {
   children: React.ReactNode
   className?: string
 }

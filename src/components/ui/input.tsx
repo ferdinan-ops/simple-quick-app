@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-interface InputProps extends React.ComponentProps<'input'> {
+type InputProps = {
   variant: 'default' | 'hidden'
-}
+} & React.ComponentProps<'input'>
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type, variant, ...props }, ref) => {
   return (

@@ -1,11 +1,11 @@
 import { cn } from '@/lib/utils'
 
-interface FloatButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+type FloatButtonProps = {
   children: React.ReactNode
   className?: string
   size?: 'large' | 'small'
   fixed?: boolean
-}
+} & React.ButtonHTMLAttributes<HTMLButtonElement>
 
 export default function FloatButton({ children, className, size = 'small', fixed = true, ...props }: FloatButtonProps) {
   return (

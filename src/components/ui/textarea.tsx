@@ -1,11 +1,11 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 
-interface TextareaProps extends React.ComponentProps<'textarea'> {
+type TextareaProps = {
   variant: 'default' | 'hidden'
   onInput?: React.FormEventHandler<HTMLTextAreaElement>
   onBlur?: () => void
-}
+} & React.ComponentProps<'textarea'>
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, variant, onInput, onBlur, ...props }, ref) => {

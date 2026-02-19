@@ -1,16 +1,16 @@
 import * as React from 'react'
 import { MainPopupLayout } from '../layouts'
 
-interface LoadingProps {
+type LoadingProps = {
   children?: React.ReactNode
 }
 
 export default function Loading({ children }: LoadingProps) {
   return (
-    <MainPopupLayout>
+    <MainPopupLayout className="min-h-[556px] items-center justify-center">
       <div className="flex flex-col items-center gap-6">
         <svg
-          className="text-gray8 animate-spin"
+          className="animate-spin text-gray8"
           viewBox="0 0 64 64"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
