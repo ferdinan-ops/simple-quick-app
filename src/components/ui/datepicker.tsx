@@ -6,32 +6,30 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Button } from '../atoms/button'
 import { CalendarIcon } from '@/assets/icons'
 import COLORS from '@/lib/color'
+import { formatDate } from '@/lib/date'
 
-function formatDate(date: Date) {
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  const year = date.getFullYear()
-  return `${month}/${day}/${year}`
+interface DatePickerProps {
+  value?: Date
+  onChange?: (date: Date) => void
 }
 
-export function DatePicker() {
+export function DatePicker({ value, onChange }: DatePickerProps) {
   const [open, setOpen] = React.useState(false)
-  const [date, setDate] = React.useState<Date | undefined>(new Date('2025-06-01'))
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" id="date" className="z-10 w-[193px] justify-between text-xs">
-          {date ? formatDate(date) : 'Set Date'}
+        <Button variant="outline" id="date" className="z-10 w-[193px] border-gray3 justify-between text-xs">
+          {value ? formatDate(value) : 'Set Date'}
           <CalendarIcon size={16} color={COLORS.GRAY2} />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="z-50 w-[258px] overflow-hidden bg-white p-0" align="start">
         <Calendar
           mode="single"
-          selected={date}
+          selected={value}
           onSelect={(date) => {
-            setDate(date)
+            onChange?.(date as Date)
             setOpen(false)
           }}
         />

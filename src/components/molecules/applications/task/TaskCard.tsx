@@ -1,58 +1,73 @@
+import * as React from 'react'
 import { ChevronIcon, MoreIcon, PencilIcon, TimeIcon } from '@/assets/icons'
 import { Button } from '@/components/atoms/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DatePicker } from '@/components/ui/datepicker'
 import COLORS from '@/lib/color'
 import { cn } from '@/lib/utils'
-import * as React from 'react'
 import Dropdown from '../../Dropdown'
-
-function getDaysLeft(dateString: string) {
-  const [day, month, year] = dateString.split('/').map(Number)
-
-  const targetDate = new Date(year as number, (month as number) - 1, day)
-  const today = new Date()
-
-  today.setHours(0, 0, 0, 0)
-  targetDate.setHours(0, 0, 0, 0)
-
-  const diffTime = targetDate.getTime() - today.getTime()
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-
-  return diffDays
-}
+import { Textarea } from '@/components/ui/textarea'
+import type { TaskType } from '@/types/task.type'
+import { formatDate, getDaysLeft, parseDate } from '@/lib/date'
+import { useDeleteTask, useUpdateTask } from '@/store/server/useTask'
 
 interface TaskCardProps {
   className?: string
-  taskItem: {
-    status: string
-    task: string
-    createdAt: string
-    descriptions?: string
-  }
+  taskItem: TaskType
+  id: string
 }
 
-export default function TaskCard({ taskItem, className }: TaskCardProps) {
-  const [open, setOpen] = React.useState(true)
+export default function TaskCard({ taskItem, className, id }: TaskCardProps) {
+  const [open, setOpen] = React.useState(taskItem.status === 'DONE' ? false : true)
+  const [targetDate, setTargetDate] = React.useState<Date | undefined>(
+    taskItem.targetDate ? parseDate(taskItem.targetDate) : undefined
+  )
+  const [status, setStatus] = React.useState(taskItem.status)
+  const [task, setTask] = React.useState(taskItem.task)
+  const [descriptions, setDescriptions] = React.useState(taskItem.descriptions)
+
+  const [isDescriptionEdit, setIsDescriptionEdit] = React.useState(false)
+
+  const { mutate: updateTask } = useUpdateTask()
+  const { mutate: deleteTask } = useDeleteTask()
+
+  const handleUpdateTask = () => {
+    updateTask({
+      id,
+      task,
+      descriptions,
+      targetDate: targetDate ? formatDate(targetDate) : '',
+      status
+    })
+  }
 
   return (
     <article
       className={cn('flex w-full flex-col gap-4 transition-all ease-in-out', open ? 'pb-5' : 'pb-[1px]', className)}
     >
       <div className="flex items-start justify-between gap-[54px] pl-1 pr-5">
-        <div className="flex items-start gap-[22px]">
-          <Checkbox checked={taskItem.status === 'DONE'} className="mt-[3px]" />
-          <p
-            className={cn('text-sm font-semibold text-gray2', taskItem.status === 'DONE' && 'text-gray3 line-through')}
-          >
-            {taskItem.task}
-          </p>
+        <div className="flex w-full items-start gap-[22px]">
+          <Checkbox
+            checked={status === 'DONE'}
+            onCheckedChange={(checked) => {
+              setStatus(checked ? 'DONE' : 'TODO')
+              handleUpdateTask()
+            }}
+            className="mt-[3px]"
+          />
+          <Textarea
+            variant="hidden"
+            value={task}
+            onChange={(e) => setTask(e.target.value)}
+            onBlur={() => handleUpdateTask()}
+            className={cn('text-sm font-semibold text-gray2', status === 'DONE' && 'text-gray3 line-through')}
+          />
         </div>
         <div className="flex items-center">
-          {taskItem.status !== 'DONE' && (
-            <p className="w-max text-xs font-medium text-red">{getDaysLeft(taskItem.createdAt)} Days Left</p>
+          {status !== 'DONE' && taskItem.targetDate && (
+            <p className="w-max text-xs font-medium text-red">{getDaysLeft(taskItem.targetDate)} Days Left</p>
           )}
-          <p className="ml-5 mr-[10px] text-[10px] font-semibold text-gray2">{taskItem.createdAt}</p>
+          <p className="ml-5 mr-[10px] text-[10px] font-semibold text-gray2">{taskItem.targetDate}</p>
           <Button variant="icon" className="mr-[14px]" onClick={() => setOpen(!open)}>
             <ChevronIcon
               color={COLORS.GRAY2}
@@ -65,7 +80,7 @@ export default function TaskCard({ taskItem, className }: TaskCardProps) {
               <MoreIcon color={COLORS.GRAY3} width={14} height={4} />
             </Dropdown.TriggerButton>
             <Dropdown.Content align="right" className="w-[126px]">
-              <Dropdown.Item className="text-red">Delete</Dropdown.Item>
+              <Dropdown.Item className="text-red" onClick={() => deleteTask(id)}>Delete</Dropdown.Item>
             </Dropdown.Content>
           </Dropdown>
         </div>
@@ -79,11 +94,19 @@ export default function TaskCard({ taskItem, className }: TaskCardProps) {
       >
         <div className="flex items-center gap-[18px]">
           <TimeIcon color={COLORS.PRIMARY} size={20} />
-          <DatePicker />
+          <DatePicker value={targetDate} onChange={(date) => setTargetDate(date)} />
         </div>
-        <div className="flex items-start gap-[26px]">
-          <PencilIcon color={COLORS.PRIMARY} size={15} className="pt-1" />
-          <p className="max-w-[80%] text-xs font-medium text-gray2">{taskItem.descriptions ?? 'No Description'}</p>
+        <div className="flex items-start gap-[18px]">
+          <Button variant="icon" onClick={() => setIsDescriptionEdit(!isDescriptionEdit)}>
+            <PencilIcon color={COLORS.PRIMARY} size={20} />
+          </Button>
+          <Textarea
+            variant="hidden"
+            value={descriptions ?? 'No Description'}
+            onChange={(e) => setDescriptions(e.target.value)}
+            onBlur={() => handleUpdateTask()}
+            className={cn('max-w-[80%] text-sm font-medium text-gray2', status === 'DONE' && 'text-gray3 line-through')}
+          />
         </div>
       </div>
     </article>

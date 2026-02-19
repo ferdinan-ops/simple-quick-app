@@ -46,8 +46,8 @@ function Content({ children, className, align = 'center' }: DropdownProps & { al
   return (
     <div
       className={cn(
-        'absolute top-[calc(100%+7px)] z-50 flex -translate-y-2 flex-col rounded-md border border-gray3 bg-white opacity-0 transition-all',
-        context.open && 'translate-y-0 opacity-100',
+        'absolute top-[calc(100%+7px)] flex -translate-y-2 flex-col rounded-md border border-gray3 bg-white opacity-0 transition-all max-h-0 overflow-hidden',
+        context.open && 'translate-y-0 opacity-100 z-50 max-h-32',
         align === 'center' && 'left-1/2 w-full origin-center -translate-x-1/2',
         align === 'right' && 'right-0 origin-bottom-right',
         className
@@ -58,9 +58,9 @@ function Content({ children, className, align = 'center' }: DropdownProps & { al
   )
 }
 
-function Item({ children, className }: DropdownProps) {
+function Item({ children, className, onClick }: DropdownProps & { onClick?: () => void }) {
   return (
-    <button className={cn('flex items-center px-[15px] py-[12px] text-sm font-semibold text-gray2', className)}>
+    <button onClick={onClick} className={cn('flex items-center px-[15px] py-[12px] text-sm font-semibold text-gray2 hover:bg-neutral-100', className)}>
       {children}
     </button>
   )

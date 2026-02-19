@@ -1,0 +1,14 @@
+import axios from 'axios'
+
+import ENV from '@/lib/environment'
+console.log(ENV)
+const api = axios.create({
+  baseURL: ENV.apiUrl,
+  headers: {
+    'x-api-key': ENV.publicKeyDb as string
+  }
+})
+
+api.defaults.headers.post['Content-Type'] = 'application/json'
+
+export default api
