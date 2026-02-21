@@ -8,6 +8,10 @@ import PencilIcon from './PencilIcon'
 import MoreIcon from './MoreIcon'
 import CalendarIcon from './CalendarIcon'
 import CheckIcon from './CheckIcon'
+import LoadingIcon from './LoadingIcon'
+import PersonIcon from './PersonIcon'
+import ArrowIcon from './ArrowIcon'
+import XIcon from './XIcon'
 
 export {
   QuickIcon,
@@ -19,5 +23,9 @@ export {
   PencilIcon,
   MoreIcon,
   CalendarIcon,
-  CheckIcon
+  CheckIcon,
+  LoadingIcon,
+  PersonIcon,
+  ArrowIcon,
+  XIcon
 }

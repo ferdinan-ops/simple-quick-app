@@ -1,14 +1,15 @@
-import { EmptyData } from '@/components/atoms'
-import { Loading } from '@/components/atoms'
-import { TaskLayout } from '@/components/layouts'
+import { TaskLayout } from '@/components/layouts/applications/task'
+import { EmptyData, Loading, ScrollArea } from '@/components/atoms'
 import { TaskCard } from '@/components/molecules/applications/task'
-import { cn } from '@/lib/utils'
+
 import { useGetTasks } from '@/store/server/useTask'
+
+import { cn } from '@/lib/utils'
 
 export default function TaskLists() {
   const { data: tasks, isLoading, isSuccess } = useGetTasks()
 
-  if (isLoading) {
+  if (isLoading && !tasks) {
     return (
       <TaskLayout>
         <Loading>
@@ -28,14 +29,16 @@ export default function TaskLists() {
 
   return (
     <TaskLayout>
-      {tasks?.map((item, index) => (
-        <TaskCard
-          key={index}
-          id={item.id}
-          taskItem={item.data}
-          className={cn(index !== tasks.length - 1 && 'border-b border-gray3', index !== 0 && 'pt-5')}
-        />
-      ))}
+      <ScrollArea>
+        {tasks?.map((item, index) => (
+          <TaskCard
+            key={item.id}
+            id={item.id}
+            taskItem={item.data}
+            className={cn(index !== tasks.length - 1 && 'border-b border-gray3', index !== 0 && 'pt-5')}
+          />
+        ))}
+      </ScrollArea>
     </TaskLayout>
   )
 }

@@ -1,6 +1,9 @@
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
+import { useDropdownContext } from '@/store/client/useDropdownContext'
+
+import { DropdownProvider } from '@/components/providers'
 import { Button, type ButtonProps } from '@/components/atoms/button'
 
 type DropdownProps = {
@@ -8,26 +11,16 @@ type DropdownProps = {
   className?: string
 }
 
-type DropdownContextType = {
-  open: boolean
-  setOpen: (open: boolean) => void
-}
-
-const DropdownContext = React.createContext<DropdownContextType | null>(null)
-
 export default function Dropdown({ children, className }: DropdownProps) {
-  const [open, setOpen] = React.useState(false)
-
   return (
-    <DropdownContext.Provider value={{ open, setOpen }}>
+    <DropdownProvider>
       <div className={cn('relative flex flex-1 flex-col', className)}>{children}</div>
-    </DropdownContext.Provider>
+    </DropdownProvider>
   )
 }
 
 function TriggerButton(props: ButtonProps) {
-  const context = React.useContext(DropdownContext)
-  if (!context) throw new Error('TriggerButton must be inside Dropdown')
+  const context = useDropdownContext()
 
   return (
     <Button
@@ -40,9 +33,9 @@ function TriggerButton(props: ButtonProps) {
   )
 }
 
-function Content({ children, className, align = 'center' }: DropdownProps & { align?: 'center' | 'right' }) {
-  const context = React.useContext(DropdownContext)
-  if (!context) throw new Error('Content must be inside Dropdown')
+function Content({ children, className, align = 'center' }: DropdownProps & { align?: 'center' | 'right' | 'left' }) {
+  const context = useDropdownContext()
+
   return (
     <div
       className={cn(
@@ -50,6 +43,7 @@ function Content({ children, className, align = 'center' }: DropdownProps & { al
         context.open && 'z-50 max-h-32 translate-y-0 opacity-100',
         align === 'center' && 'left-1/2 w-full origin-center -translate-x-1/2',
         align === 'right' && 'right-0 origin-bottom-right',
+        align === 'left' && 'left-0 origin-bottom-left',
         className
       )}
     >

@@ -1,14 +1,16 @@
-import { MainPopupLayout } from '../layouts'
+import { cn } from '@/lib/utils'
+import { ScrollArea } from '@/components/atoms'
 
 type EmptyDataProps = {
   text: string
+  className?: string
 }
 
-export default function EmptyData({ text }: EmptyDataProps) {
+export default function EmptyData({ text, className }: EmptyDataProps) {
   return (
-    <MainPopupLayout className="min-h-[556px] items-center justify-center">
+    <ScrollArea className={cn('gap-6', className)} scrollClassName="pr-0" center>
       <span className="text-2xl">❌</span>
       <p className="text-center font-semibold text-gray2">{text}</p>
-    </MainPopupLayout>
+    </ScrollArea>
   )
 }

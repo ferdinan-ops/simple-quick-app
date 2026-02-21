@@ -87,7 +87,7 @@ export default function QuickMenu({ actions, mainButton }: QuickMenuProps) {
           activeIndex !== null && 'translate-y-0 opacity-100'
         )}
       >
-        {activeIndex ? actions[activeIndex]?.popup : null}
+        {activeIndex !== null ? actions[activeIndex]?.popup : null}
       </QuickPopup>
       <div className="fixed bottom-[34px] right-[27px] flex size-[68px] items-center">
         <FloatButton

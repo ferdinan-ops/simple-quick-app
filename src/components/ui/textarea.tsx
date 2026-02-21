@@ -5,10 +5,11 @@ type TextareaProps = {
   variant: 'default' | 'hidden'
   onInput?: React.FormEventHandler<HTMLTextAreaElement>
   onBlur?: () => void
+  isOnEditDesc?: boolean
 } & React.ComponentProps<'textarea'>
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, variant, onInput, onBlur, ...props }, ref) => {
+  ({ className, variant, onInput, onBlur, isOnEditDesc, ...props }, ref) => {
     const innerRef = React.useRef<HTMLTextAreaElement | null>(null)
     const [onEdit, setOnEdit] = React.useState(false)
 
@@ -19,7 +20,14 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         innerRef.current.style.height = '0px'
         innerRef.current.style.height = innerRef.current.scrollHeight + 'px'
       }
-    }, [props.value])
+    }, [props.value, variant])
+
+    React.useEffect(() => {
+      if (isOnEditDesc) {
+        setOnEdit(true)
+        innerRef.current?.focus()
+      }
+    }, [isOnEditDesc])
 
     const handleInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
       const el = e.currentTarget
@@ -40,7 +48,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           onBlur?.()
         }}
         className={cn(
-          'flex flex-1 resize-none overflow-hidden border border-gray3 text-sm text-gray2 focus:outline-none',
+          'flex flex-1 resize-none overflow-hidden rounded-md border border-gray3 text-sm font-semibold text-gray2 focus:outline-none',
           variant === 'default' && 'min-h-[40px] px-4 py-2',
           variant === 'hidden' && 'h-auto w-full border-none p-0',
           variant === 'hidden' && !onEdit && 'hover:cursor-pointer hover:bg-neutral-100',

@@ -1,11 +1,12 @@
 import * as React from 'react'
 import { Outlet } from 'react-router-dom'
 
-import { Header, Sidebar } from '@/components/organism'
 import { QuickMenu } from '@/components/molecules'
+import { Header, Sidebar } from '@/components/organism'
+import { TaskLists } from '@/components/organism/applications/task'
 
 import { InboxIcon, QuickIcon, TaskIcon } from '@/assets/icons'
-import { TaskLists } from '../organism/applications/task'
+import { Inbox } from '@/components/organism/applications/inbox'
 
 export default function MainLayout({ children }: { children?: React.ReactNode }) {
   return (
@@ -32,7 +33,8 @@ export default function MainLayout({ children }: { children?: React.ReactNode })
                 activeIcon: <InboxIcon color="white" size={26} />,
                 inactiveIcon: <InboxIcon color="#8785FF" size={26} />,
                 label: 'Inbox',
-                color: 'bg-purple hover:bg-purple-hover'
+                color: 'bg-purple hover:bg-purple-hover',
+                popup: <Inbox />
               },
               {
                 activeIcon: <TaskIcon color="white" size={26} />,

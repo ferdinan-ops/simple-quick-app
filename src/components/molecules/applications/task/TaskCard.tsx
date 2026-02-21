@@ -44,10 +44,22 @@ export default function TaskCard({ taskItem, className, id }: TaskCardProps) {
   const [task, setTask] = React.useState(taskItem.task)
   const [descriptions, setDescriptions] = React.useState(taskItem.descriptions)
 
+  const [isTaskFinishEdit, setIsTaskFinishEdit] = React.useState(false)
   const [isDescriptionEdit, setIsDescriptionEdit] = React.useState(false)
 
+  React.useEffect(() => {
+    setOpen(taskItem.status === 'DONE' ? false : true)
+    setStatus(taskItem.status)
+    setTask(taskItem.task)
+    setDescriptions(taskItem.descriptions)
+    setTargetDate(taskItem.targetDate ? parseDate(taskItem.targetDate) : undefined)
+  }, [taskItem])
+
+  React.useEffect(() => {
+    setIsTaskFinishEdit(!!taskItem.task)
+  }, [taskItem.task])
+
   const { mutate: updateTask } = useUpdateTask()
-  const { mutate: deleteTask } = useDeleteTask()
 
   const handleUpdateTask = (value: TaskType) => {
     updateTask({
@@ -64,26 +76,37 @@ export default function TaskCard({ taskItem, className, id }: TaskCardProps) {
       className={cn('flex w-full flex-col gap-4 transition-all ease-in-out', open ? 'pb-5' : 'pb-[1px]', className)}
     >
       <div className="flex items-start justify-between gap-[54px] pl-1 pr-5">
-        <div className="flex w-full items-start gap-[22px]">
+        <div className={cn('flex w-full items-start gap-[22px]', !isTaskFinishEdit && 'items-center')}>
           <Checkbox
+            disabled={isTaskFinishEdit ? false : true}
             checked={status === 'DONE'}
             onCheckedChange={(checked) => {
               setStatus(checked ? 'DONE' : 'TODO')
+              setOpen(checked ? false : true)
               handleUpdateTask({ status: checked ? 'DONE' : 'TODO' })
             }}
-            className="mt-[3px]"
+            className={cn(isTaskFinishEdit && 'mt-[3px]')}
           />
           <Textarea
-            variant="hidden"
+            variant={isTaskFinishEdit ? 'hidden' : 'default'}
             value={task}
+            placeholder="Type Task Title"
             onChange={(e) => setTask(e.target.value)}
-            onBlur={() => handleUpdateTask({})}
-            className={cn('text-sm font-semibold text-gray2', status === 'DONE' && 'text-gray3 line-through')}
+            onBlur={() => {
+              setIsTaskFinishEdit(true)
+              handleUpdateTask({})
+            }}
+            className={cn(
+              status === 'DONE' && 'text-gray3 line-through',
+              !isTaskFinishEdit && 'font-medium placeholder:text-gray2'
+            )}
           />
         </div>
         <div className="flex items-center">
           {status !== 'DONE' && targetDate && (
-            <p className="w-max text-xs font-medium text-red">{getDaysLeft(formatDate(targetDate))} Days Left</p>
+            <p className="w-max text-xs font-medium text-red">
+              {getDaysLeft(formatDate(targetDate)).daysLeft} {getDaysLeft(formatDate(targetDate)).status}
+            </p>
           )}
           {targetDate && (
             <p className="ml-5 mr-[10px] text-[10px] font-semibold text-gray2">{formatDate(targetDate)}</p>
@@ -100,25 +123,7 @@ export default function TaskCard({ taskItem, className, id }: TaskCardProps) {
               <MoreIcon color={COLORS.GRAY3} width={14} height={4} />
             </Dropdown.TriggerButton>
             <Dropdown.Content align="right" className="w-[126px]">
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Dropdown.Item className="text-red">Delete</Dropdown.Item>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete your task from our servers.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel className="hover:bg-neutral-100">Cancel</AlertDialogCancel>
-                    <AlertDialogAction className="bg-red text-white hover:bg-[#d62c2c]" onClick={() => deleteTask(id)}>
-                      Continue
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <DeleteTaskDialog id={id} />
             </Dropdown.Content>
           </Dropdown>
         </div>
@@ -141,18 +146,61 @@ export default function TaskCard({ taskItem, className, id }: TaskCardProps) {
           />
         </div>
         <div className="flex items-start gap-[18px]">
-          <Button variant="icon" onClick={() => setIsDescriptionEdit(!isDescriptionEdit)}>
-            <PencilIcon color={COLORS.PRIMARY} size={20} />
+          <Button variant="icon" className="h-5 w-5" onClick={() => setIsDescriptionEdit(!isDescriptionEdit)}>
+            <PencilIcon color={COLORS.PRIMARY} size={15} />
           </Button>
           <Textarea
             variant="hidden"
-            value={descriptions ?? 'No Description'}
+            isOnEditDesc={isDescriptionEdit}
+            value={descriptions}
+            placeholder="No Descriptions"
             onChange={(e) => setDescriptions(e.target.value)}
             onBlur={() => handleUpdateTask({})}
-            className={cn('max-w-[80%] text-sm font-medium text-gray2', status === 'DONE' && 'text-gray3 line-through')}
+            className={cn(
+              'max-w-[80%] font-medium placeholder:text-gray2',
+              status === 'DONE' && 'text-gray3 line-through'
+            )}
           />
         </div>
       </div>
     </article>
+  )
+}
+
+function DeleteTaskDialog({ id }: { id: string }) {
+  const { mutate: deleteTask, isPending } = useDeleteTask()
+  const [open, setOpen] = React.useState(false)
+
+  React.useEffect(() => {
+    if (!isPending) setOpen(false)
+  }, [isPending])
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
+        <Dropdown.Item className="text-red">Delete</Dropdown.Item>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete your task from our servers.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel className="hover:bg-neutral-100">Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            loading={isPending}
+            className="bg-red text-white hover:bg-[#d62c2c]"
+            onClick={(e) => {
+              e.preventDefault()
+              deleteTask(id)
+            }}
+          >
+            Continue
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }

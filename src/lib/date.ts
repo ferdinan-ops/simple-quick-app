@@ -1,4 +1,4 @@
-export function getDaysLeft(dateString: string) {
+export function getDaysLeft(dateString: string, type: 'forSort' | 'forDisplay' = 'forDisplay') {
   const [day, month, year] = dateString.split('/').map(Number)
 
   const targetDate = new Date(year as number, (month as number) - 1, day)
@@ -10,7 +10,31 @@ export function getDaysLeft(dateString: string) {
   const diffTime = targetDate.getTime() - today.getTime()
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
-  return diffDays
+  if (diffDays === 0) {
+    return {
+      ...(type === 'forSort' ? { daysLeft: 0 } : {}),
+      status: 'Today'
+    }
+  }
+
+  if (diffDays < 0) {
+    return {
+      daysLeft: type === 'forSort' ? diffDays : Math.abs(diffDays),
+      status: 'Overdue',
+    }
+  }
+
+  if (diffDays === 1) {
+    return {
+      daysLeft: 1,
+      status: 'Day Left',
+    }
+  }
+
+  return {
+    daysLeft: diffDays,
+    status: 'Days Left',
+  }
 }
 
 export function parseDate(dateString: string) {
