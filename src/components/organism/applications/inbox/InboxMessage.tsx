@@ -74,7 +74,7 @@ export default function InboxMessage({ id }: InboxMessageProps) {
                 <p className="text-xs font-semibold text-gray2">Replying to {replyMessage.name}</p>
                 <p className="text-xs font-medium text-gray1">{replyMessage.message}</p>
               </div>
-              <div className="bg-black">
+              <div>
                 <Button variant="icon" type="button" onClick={() => setReplyMessage(null)}>
                   <XIcon size={14} color={COLORS.GRAY1} />
                 </Button>
