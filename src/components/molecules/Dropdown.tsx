@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
-import { useDropdownContext } from '@/store/client/useDropdownContext'
+import { useDropdownContext, type DropdownContextType } from '@/store/client/useDropdownContext'
 
 import { DropdownProvider } from '@/components/providers'
 import { Button, type ButtonProps } from '@/components/atoms/button'
@@ -39,8 +39,8 @@ function Content({ children, className, align = 'center' }: DropdownProps & { al
   return (
     <div
       className={cn(
-        'absolute top-[calc(100%+7px)] flex max-h-0 -translate-y-2 flex-col overflow-hidden rounded-md border border-gray3 bg-white opacity-0 transition-all',
-        context.open && 'z-50 max-h-32 translate-y-0 opacity-100',
+        'absolute top-[calc(100%+7px)] flex h-0 max-h-0 -translate-y-2 flex-col overflow-hidden rounded-md border border-gray3 bg-white opacity-0 transition-all',
+        context.open && 'z-50 h-auto max-h-32 translate-y-0 opacity-100',
         align === 'center' && 'left-1/2 w-full origin-center -translate-x-1/2',
         align === 'right' && 'right-0 origin-bottom-right',
         align === 'left' && 'left-0 origin-bottom-left',
@@ -52,10 +52,18 @@ function Content({ children, className, align = 'center' }: DropdownProps & { al
   )
 }
 
-function Item({ children, className, onClick }: DropdownProps & { onClick?: () => void }) {
+type ItemProps = DropdownProps & {
+  onClick?: (context: DropdownContextType) => void
+  style?: React.CSSProperties
+}
+
+function Item({ children, className, onClick, style }: ItemProps) {
+  const context = useDropdownContext()
+
   return (
     <button
-      onClick={onClick}
+      style={style}
+      onClick={() => onClick?.(context)}
       className={cn(
         'flex items-center px-[15px] py-[12px] text-sm font-semibold text-gray2 hover:bg-neutral-100',
         className

@@ -3,19 +3,9 @@ import api from './axiosInstance'
 import { getDaysLeft } from '@/lib/date'
 
 export async function fetchTaskFn(): Promise<TaskResponse[]> {
-  const response = await api.get('/collections/task/records', {
-    params: {
-      _t: Date.now()
-    },
-    headers: {
-      'Cache-Control': 'no-cache',
-      Pragma: 'no-cache'
-    }
-  })
+  const response = await api.get('/collections/task/records')
 
-  if (!response.data || !response.data.data || !response.data.data.length) {
-    return []
-  }
+  if (!response.data || !response.data.data || !response.data.data.length) return []
 
   return response.data.data.sort((a: TaskResponse, b: TaskResponse) => {
     if (a.data.status === 'DONE' && b.data.status !== 'DONE') return 1
@@ -27,7 +17,6 @@ export async function fetchTaskFn(): Promise<TaskResponse[]> {
     const dateA = a.data.targetDate ? (getDaysLeft(a.data.targetDate, 'forSort').daysLeft ?? 0) : 0
     return dateA - dateB
   })
-  // return response.data.data
 }
 
 export async function createTaskFn(data: TaskType) {

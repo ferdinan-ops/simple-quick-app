@@ -12,6 +12,7 @@ import LoadingIcon from './LoadingIcon'
 import PersonIcon from './PersonIcon'
 import ArrowIcon from './ArrowIcon'
 import XIcon from './XIcon'
+import BookmarkIcon from './BookmarkIcon'
 
 export {
   QuickIcon,
@@ -27,5 +28,6 @@ export {
   LoadingIcon,
   PersonIcon,
   ArrowIcon,
-  XIcon
+  XIcon,
+  BookmarkIcon
 }

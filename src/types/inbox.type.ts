@@ -5,6 +5,12 @@ export type MessageType = {
   name?: string
   sendAt?: string
   message?: string
+  status?: string
+  replyMessage?: {
+    name?: string
+    message?: string
+    seq?: number
+  }
 }
 
 export type InboxType = {

@@ -12,7 +12,7 @@ body {
 .os-scrollbar {
   --os-size: 8px;
   --os-handle-bg: #BDBDBD;
-  --os-handle-bg-hover: #A3A3A3;
-  --os-handle-bg-active: #A3A3A3;
+  --os-handle-bg-hover: #BDBDBD;
+  --os-handle-bg-active: #BDBDBD;
   --os-track-bg: transparent;
 }

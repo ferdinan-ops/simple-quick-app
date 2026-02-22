@@ -8,7 +8,7 @@ type TaskLayoutProps = {
 
 export default function TaskLayout({ children }: TaskLayoutProps) {
   return (
-    <div className="flex h-full flex-col gap-5 pb-[20px] pl-[29px] pr-[13px] pt-[18px]">
+    <div className="flex h-full flex-col gap-[22px] py-6 pl-8 pr-3">
       <TaskHeader />
 
       {children}

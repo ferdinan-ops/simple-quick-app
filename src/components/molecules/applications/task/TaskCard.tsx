@@ -1,33 +1,20 @@
-import * as React from 'react'
-
 import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DatePicker } from '@/components/ui/datepicker'
 
 import { Dropdown } from '@/components/molecules'
 import { Button } from '@/components/atoms/button'
+import { DeleteTaskDialog } from '@/components/atoms/applications/task'
 
 import COLORS from '@/lib/color'
 import { cn } from '@/lib/utils'
-import { formatDate, getDaysLeft, parseDate } from '@/lib/date'
+import { formatDate, getDaysLeft } from '@/lib/date'
 
 import type { TaskType } from '@/types/task.type'
 
-import { useDeleteTask, useUpdateTask } from '@/store/server/useTask'
-
-import { ChevronIcon, MoreIcon, PencilIcon, TimeIcon } from '@/assets/icons'
-
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
-} from '@/components/ui/alert-dialog'
+import { BookmarkIcon, ChevronIcon, MoreIcon, PencilIcon, TimeIcon } from '@/assets/icons'
+import { useTaskCard } from '@/hooks'
+import { BADGES, getColorBadge } from '@/lib/constant'
 
 type TaskCardProps = {
   className?: string
@@ -36,55 +23,40 @@ type TaskCardProps = {
 }
 
 export default function TaskCard({ taskItem, className, id }: TaskCardProps) {
-  const [open, setOpen] = React.useState(taskItem.status === 'DONE' ? false : true)
-  const [targetDate, setTargetDate] = React.useState<Date | undefined>(
-    taskItem.targetDate ? parseDate(taskItem.targetDate) : undefined
-  )
-  const [status, setStatus] = React.useState(taskItem.status)
-  const [task, setTask] = React.useState(taskItem.task)
-  const [descriptions, setDescriptions] = React.useState(taskItem.descriptions)
-
-  const [isTaskFinishEdit, setIsTaskFinishEdit] = React.useState(false)
-  const [isDescriptionEdit, setIsDescriptionEdit] = React.useState(false)
-
-  React.useEffect(() => {
-    setOpen(taskItem.status === 'DONE' ? false : true)
-    setStatus(taskItem.status)
-    setTask(taskItem.task)
-    setDescriptions(taskItem.descriptions)
-    setTargetDate(taskItem.targetDate ? parseDate(taskItem.targetDate) : undefined)
-  }, [taskItem])
-
-  React.useEffect(() => {
-    setIsTaskFinishEdit(!!taskItem.task)
-  }, [taskItem.task])
-
-  const { mutate: updateTask } = useUpdateTask()
-
-  const handleUpdateTask = (value: TaskType) => {
-    updateTask({
-      id,
-      task: value.task ?? task,
-      descriptions: value.descriptions ?? descriptions,
-      targetDate: value.targetDate ? value.targetDate : targetDate ? formatDate(targetDate) : '',
-      status: value.status ?? status
-    })
-  }
+  const {
+    open,
+    setOpen,
+    targetDate,
+    status,
+    task,
+    setTask,
+    descriptions,
+    setDescriptions,
+    isTaskFinishEdit,
+    isDescriptionEdit,
+    setIsDescriptionEdit,
+    handleUpdateTask,
+    handleCheckboxChange,
+    handleDateChange,
+    handleTaskBlur,
+    badges,
+    handleBadgeClick
+  } = useTaskCard(taskItem, id)
 
   return (
     <article
-      className={cn('flex w-full flex-col gap-4 transition-all ease-in-out', open ? 'pb-5' : 'pb-[1px]', className)}
+      className={cn(
+        'flex w-full flex-col gap-4 transition-all ease-in-out',
+        open ? 'pb-[22px]' : 'pb-[1px]',
+        className
+      )}
     >
       <div className="flex items-start justify-between gap-[54px] pl-1 pr-5">
         <div className={cn('flex w-full items-start gap-[22px]', !isTaskFinishEdit && 'items-center')}>
           <Checkbox
             disabled={isTaskFinishEdit ? false : true}
             checked={status === 'DONE'}
-            onCheckedChange={(checked) => {
-              setStatus(checked ? 'DONE' : 'TODO')
-              setOpen(checked ? false : true)
-              handleUpdateTask({ status: checked ? 'DONE' : 'TODO' })
-            }}
+            onCheckedChange={(checked) => handleCheckboxChange(!!checked)}
             className={cn(isTaskFinishEdit && 'mt-[3px]')}
           />
           <Textarea
@@ -92,10 +64,7 @@ export default function TaskCard({ taskItem, className, id }: TaskCardProps) {
             value={task}
             placeholder="Type Task Title"
             onChange={(e) => setTask(e.target.value)}
-            onBlur={() => {
-              setIsTaskFinishEdit(true)
-              handleUpdateTask({})
-            }}
+            onBlur={handleTaskBlur}
             className={cn(
               status === 'DONE' && 'text-gray3 line-through',
               !isTaskFinishEdit && 'font-medium placeholder:text-gray2'
@@ -131,19 +100,13 @@ export default function TaskCard({ taskItem, className, id }: TaskCardProps) {
 
       <div
         className={cn(
-          'ml-[calc(22px+18px)] flex flex-col gap-[13px] overflow-hidden transition-all ease-in-out',
-          open ? 'max-h-40' : 'max-h-0'
+          'ml-[calc(22px+18px)] flex flex-col gap-[13px] transition-all ease-in-out',
+          open ? 'max-h-[5000px]' : 'max-h-0'
         )}
       >
         <div className="flex items-center gap-[18px]">
           <TimeIcon color={COLORS.PRIMARY} size={20} />
-          <DatePicker
-            value={targetDate}
-            onChange={(date) => {
-              setTargetDate(date)
-              handleUpdateTask({ targetDate: formatDate(date) })
-            }}
-          />
+          <DatePicker value={targetDate} onChange={handleDateChange} />
         </div>
         <div className="flex items-start gap-[18px]">
           <Button variant="icon" className="h-5 w-5" onClick={() => setIsDescriptionEdit(!isDescriptionEdit)}>
@@ -162,45 +125,40 @@ export default function TaskCard({ taskItem, className, id }: TaskCardProps) {
             )}
           />
         </div>
+        <div className="flex items-center gap-[18px]">
+          <Dropdown className="flex-none">
+            <Dropdown.TriggerButton variant="icon">
+              <BookmarkIcon color={badges.length === 0 ? COLORS.GRAY3 : COLORS.PRIMARY} />
+            </Dropdown.TriggerButton>
+            <Dropdown.Content align="left" className="max-h-[5000px] w-[277px] gap-[11px] px-4 py-[14px]">
+              {BADGES.map((badge) => (
+                <Dropdown.Item
+                  key={badge.label}
+                  className={cn(
+                    'h-7 rounded-md px-[13px] text-[11px] font-semibold text-gray2',
+                    badges.includes(badge.label) && 'border border-primary'
+                  )}
+                  style={{ backgroundColor: badge.color }}
+                  onClick={() => handleBadgeClick(badge.label)}
+                >
+                  {badge.label}
+                </Dropdown.Item>
+              ))}
+            </Dropdown.Content>
+          </Dropdown>
+          <div className="flex items-center gap-[10px]">
+            {badges.map((badge) => (
+              <div
+                className="rounded-md px-3 py-2 text-xs font-semibold text-gray2"
+                style={{ backgroundColor: getColorBadge(badge) }}
+                key={badge}
+              >
+                {badge}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </article>
-  )
-}
-
-function DeleteTaskDialog({ id }: { id: string }) {
-  const { mutate: deleteTask, isPending } = useDeleteTask()
-  const [open, setOpen] = React.useState(false)
-
-  React.useEffect(() => {
-    if (!isPending) setOpen(false)
-  }, [isPending])
-
-  return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>
-        <Dropdown.Item className="text-red">Delete</Dropdown.Item>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete your task from our servers.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel className="hover:bg-neutral-100">Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            loading={isPending}
-            className="bg-red text-white hover:bg-[#d62c2c]"
-            onClick={(e) => {
-              e.preventDefault()
-              deleteTask(id)
-            }}
-          >
-            Continue
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
   )
 }

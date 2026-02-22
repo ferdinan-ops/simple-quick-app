@@ -10,7 +10,7 @@ type InboxListsLayoutProps = {
 
 export default function InboxListsLayout({ search, setSearch, children }: InboxListsLayoutProps) {
   return (
-    <div className="flex h-full flex-col gap-[6px] pl-[29px] pr-[39px] pt-[20px]">
+    <div className="flex h-full flex-col px-8 py-6">
       <Search value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search Inbox" />
       {children}
     </div>

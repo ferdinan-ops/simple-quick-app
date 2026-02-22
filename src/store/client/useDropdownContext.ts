@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-type DropdownContextType = {
+export type DropdownContextType = {
   open: boolean
   setOpen: (open: boolean) => void
 }

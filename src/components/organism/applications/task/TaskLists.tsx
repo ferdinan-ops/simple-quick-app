@@ -35,7 +35,7 @@ export default function TaskLists() {
             key={item.id}
             id={item.id}
             taskItem={item.data}
-            className={cn(index !== tasks.length - 1 && 'border-b border-gray3', index !== 0 && 'pt-5')}
+            className={cn(index !== tasks.length - 1 && 'border-b border-gray3', index !== 0 && 'pt-[22px]')}
           />
         ))}
       </ScrollArea>

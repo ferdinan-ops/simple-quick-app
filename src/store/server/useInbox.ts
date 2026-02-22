@@ -13,8 +13,9 @@ export function useChangeDataInbox() {
 
   return useMutation({
     mutationFn: changeDataFn,
-    onSuccess: (id: string) => {
-      queryClient.invalidateQueries({ queryKey: ['inbox', id] })
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['inbox', variables.id] })
+      queryClient.invalidateQueries({ queryKey: ['inbox'] })
     }
   })
 }

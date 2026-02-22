@@ -19,7 +19,7 @@ export default function InboxCard({ inboxItem, id, className }: InboxCardProps) 
   return (
     <article
       onClick={() => navigateTo(<InboxMessage id={id || ''} />)}
-      className={cn('flex cursor-pointer items-start gap-[17px] pb-8 pt-[21px]', className)}
+      className={cn('flex cursor-pointer items-start gap-[17px] py-[22px]', className)}
     >
       <div className="relative">
         <div className="relative z-50 ml-[17px] flex h-[34px] w-[34px] items-center justify-center rounded-full bg-primary">
