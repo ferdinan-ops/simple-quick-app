@@ -5,9 +5,7 @@ import ENV from '@/lib/environment'
 const api = axios.create({
   baseURL: ENV.apiUrl,
   headers: {
-    'x-api-key': ENV.publicKeyDb as string,
-    'Cache-Control': 'no-cache',
-    Pragma: 'no-cache'
+    'x-api-key': ENV.publicKeyDb as string
   }
 })
 
