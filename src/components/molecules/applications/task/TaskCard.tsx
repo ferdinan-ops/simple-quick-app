@@ -100,7 +100,7 @@ export default function TaskCard({ taskItem, className, id }: TaskCardProps) {
 
       <div
         className={cn(
-          'ml-[calc(22px+18px)] flex flex-col gap-[13px] transition-all ease-in-out',
+          'ml-[calc(22px+18px)] flex flex-col gap-[13px] transition-all ease-in-out overflow-hidden',
           open ? 'max-h-[5000px]' : 'max-h-0'
         )}
       >
